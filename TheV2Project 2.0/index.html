@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The V2 Project — La Evidencia No Miente</title>
+  <meta name="description" content="V2 no es motivación. Es un sistema para erradicar una identidad que ya no funciona. La evidencia no miente.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="The V2 Project">
+  <meta property="og:description" content="La evidencia no miente.">
+  <meta property="og:type" content="website">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,300&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:      #070810;
+      --surface: #0C0E1A;
+      --border:  #181D2E;
+      --accent:  #2DB87A;
+      --text:    #EAEEF4;
+      --muted:   #32394E;
+      --muted2:  #65748A;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Subtle grid overlay — the "system" texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(45,184,122,.012) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(45,184,122,.012) 1px, transparent 1px);
+      background-size: 72px 72px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Scroll progress */
+    #progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 1px;
+      width: 0%;
+      background: var(--accent);
+      z-index: 300;
+      transition: width .08s linear;
+    }
+
+    /* ── NAV ─────────────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 44px;
+      transition: padding .4s ease, background .4s ease, backdrop-filter .4s ease, border-color .4s ease;
+      border-bottom: 1px solid transparent;
+    }
+
+    nav.scrolled {
+      padding: 18px 44px;
+      background: rgba(7,8,16,.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-color: var(--border);
+    }
+
+    .nav-logo {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav-cta {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 10px 22px;
+      border: 1px solid rgba(45,184,122,.2);
+      transition: background .2s, border-color .2s;
+    }
+
+    .nav-cta:hover {
+      background: rgba(45,184,122,.07);
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 22px 24px; }
+      nav.scrolled { padding: 14px 24px; }
+    }
+
+    /* ── HERO ────────────────────────────────────────────────────────── */
+    .hero {
+      height: 100vh;
+      min-height: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      padding: 0 24px;
+      overflow: hidden;
+    }
+
+    .hero-eyebrow {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .5em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 1s cubic-bezier(.16,1,.3,1) .2s forwards;
+    }
+
+    .hero-title {
+      font-size: clamp(108px, 25vw, 300px);
+      font-weight: 900;
+      letter-spacing: -.04em;
+      line-height: .88;
+      color: var(--text);
+      opacity: 0;
+      animation: fadeUp 1.2s cubic-bezier(.16,1,.3,1) .5s forwards;
+    }
+
+    .hero-slogan {
+      margin-top: 36px;
+      font-size: clamp(10px, 1.4vw, 13px);
+      font-weight: 400;
+      letter-spacing: .42em;
+      color: var(--muted2);
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeUp 1s cubic-bezier(.16,1,.3,1) .95s forwards;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      animation: fadeIn 1s ease 1.6s forwards;
+    }
+
+    .hero-scroll-label {
+      font-size: 8px;
+      letter-spacing: .55em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .hero-scroll-track {
+      width: 1px;
+      height: 52px;
+      background: var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-scroll-track::after {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--accent));
+      animation: scanDown 2.2s ease-in-out infinite;
+    }
+
+    /* ── SECTION 01 — NARRATIVE ──────────────────────────────────────── */
+    #s01 { /* height set by JS */ }
+
+    .s01-pin {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .s01-phrase {
+      position: absolute;
+      width: 90%;
+      max-width: 720px;
+      text-align: center;
+      font-size: clamp(22px, 4vw, 52px);
+      font-weight: 300;
+      line-height: 1.25;
+      color: var(--text);
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .55s ease, transform .55s cubic-bezier(.16,1,.3,1);
+      pointer-events: none;
+    }
+
+    .s01-phrase.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .s01-phrase.exit {
+      opacity: 0;
+      transform: translateY(-28px);
+    }
+
+    .s01-phrase.pivot {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    /* ── SHARED REVEAL ───────────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .7s ease, transform .7s cubic-bezier(.16,1,.3,1);
+    }
+
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── SECTION TAG ─────────────────────────────────────────────────── */
+    .section-tag {
+      display: block;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .5em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 56px;
+    }
+
+    /* ── SECTION BASE ────────────────────────────────────────────────── */
+    .section {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── SECTION 02 — REALIDAD ───────────────────────────────────────── */
+    .s02-inner {
+      max-width: 680px;
+      text-align: center;
+    }
+
+    .s02-headline {
+      font-size: clamp(30px, 5.5vw, 68px);
+      font-weight: 700;
+      letter-spacing: -.025em;
+      line-height: 1.1;
+      margin-bottom: 48px;
+    }
+
+    .s02-rule {
+      width: 1px;
+      height: 60px;
+      margin: 0 auto 48px;
+      background: linear-gradient(to bottom, var(--border), var(--accent), var(--border));
+    }
+
+    .s02-statement {
+      font-size: clamp(13px, 1.8vw, 16px);
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    /* ── SECTION 03 — QUÉ ES V2 ─────────────────────────────────────── */
+    .s03-inner { max-width: 820px; width: 100%; }
+
+    .s03-headline {
+      font-size: clamp(34px, 6vw, 80px);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.06;
+      margin-bottom: 52px;
+    }
+
+    .s03-headline .em { color: var(--accent); }
+
+    .s03-coda {
+      font-size: clamp(15px, 1.9vw, 20px);
+      font-weight: 300;
+      color: var(--muted2);
+      line-height: 1.9;
+      border-left: 1px solid var(--border);
+      padding-left: 28px;
+      max-width: 420px;
+    }
+
+    /* ── SECTION 04 — V1 VS V2 ───────────────────────────────────────── */
+    .s04-inner { max-width: 880px; width: 100%; }
+
+    .s04-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    @media (max-width: 580px) {
+      .s04-grid { grid-template-columns: 1fr; }
+    }
+
+    .s04-col { background: var(--bg); padding: 52px 44px; }
+
+    @media (max-width: 640px) {
+      .s04-col { padding: 36px 28px; }
+    }
+
+    .s04-col-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .4em;
+      text-transform: uppercase;
+      padding-bottom: 28px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .v1 .s04-col-label { color: var(--muted2); }
+    .v2 .s04-col-label { color: var(--accent); }
+
+    .s04-item {
+      font-size: clamp(13px, 1.7vw, 17px);
+      font-weight: 300;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .4s ease, transform .4s ease;
+    }
+
+    .s04-item.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .v1 .s04-item { color: var(--muted2); }
+
+    .v1 .s04-item::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 0;
+      height: 1px;
+      background: var(--muted2);
+      transition: width .55s ease;
+    }
+
+    .v1 .s04-item.struck::after { width: 100%; }
+
+    .v2 .s04-item {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .s04-coda {
+      margin-top: 52px;
+      text-align: center;
+      font-size: clamp(14px, 1.8vw, 18px);
+      font-weight: 300;
+      color: var(--muted2);
+      line-height: 1.7;
+    }
+
+    .s04-coda strong { color: var(--text); font-weight: 700; }
+
+    /* ── SECTION 05 — EVIDENCIA ──────────────────────────────────────── */
+    .s05-inner {
+      max-width: 680px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .s05-headline {
+      font-size: clamp(28px, 5vw, 60px);
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin-bottom: 64px;
+    }
+
+    .s05-signals { margin-bottom: 72px; }
+
+    .s05-signal {
+      font-size: clamp(20px, 3.2vw, 38px);
+      font-weight: 300;
+      color: var(--muted2);
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity .5s ease, transform .5s ease, color .5s ease;
+    }
+
+    .s05-signal.in {
+      opacity: 1;
+      transform: translateY(0);
+      color: var(--text);
+    }
+
+    .s05-areas {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    @media (max-width: 500px) {
+      .s05-areas { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .s05-area {
+      background: var(--bg);
+      padding: 22px 18px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0;
+      transition: opacity .5s ease, color .4s ease;
+    }
+
+    .s05-area.in { opacity: 1; color: var(--muted2); }
+
+    /* ── SECTION 06 — RADIOGRAFÍA ────────────────────────────────────── */
+    .s06-inner {
+      max-width: 640px;
+      text-align: center;
+    }
+
+    .s06-pre {
+      font-size: clamp(15px, 2vw, 20px);
+      font-weight: 300;
+      color: var(--muted2);
+      line-height: 1.95;
+      margin-bottom: 60px;
+    }
+
+    .s06-headline {
+      font-size: clamp(38px, 7vw, 84px);
+      font-weight: 800;
+      letter-spacing: -.035em;
+      line-height: 1.04;
+      margin-bottom: 60px;
+    }
+
+    /* ── SECTION 07 — CIERRE ─────────────────────────────────────────── */
+    .s07-inner {
+      max-width: 640px;
+      text-align: center;
+    }
+
+    .s07-mirror { margin-bottom: 72px; }
+
+    .s07-mirror-item {
+      font-size: clamp(17px, 2.6vw, 28px);
+      font-weight: 300;
+      color: var(--muted2);
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .5s ease, transform .5s ease, color .5s ease;
+    }
+
+    .s07-mirror-item.in {
+      opacity: 1;
+      transform: translateY(0);
+      color: var(--text);
+    }
+
+    .s07-question {
+      font-size: clamp(16px, 2.2vw, 22px);
+      font-weight: 300;
+      color: var(--muted2);
+      line-height: 1.9;
+      margin-bottom: 60px;
+      opacity: 0;
+      transition: opacity .7s ease;
+    }
+
+    .s07-question.in { opacity: 1; }
+
+    /* ── CTA ─────────────────────────────────────────────────────────── */
+    .btn-primary {
+      display: inline-block;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: #070810;
+      background: var(--accent);
+      border: none;
+      padding: 20px 56px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .2s, transform .2s;
+      -webkit-appearance: none;
+    }
+
+    .btn-primary:hover {
+      background: #38C98A;
+      transform: translateY(-2px);
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────────────── */
+    footer {
+      padding: 44px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-brand {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      color: var(--muted2);
+    }
+
+    .footer-tagline {
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    @media (max-width: 640px) {
+      footer { padding: 36px 24px; justify-content: center; text-align: center; }
+    }
+
+    /* ── KEYFRAMES ───────────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes scanDown {
+      0%   { top: -100%; }
+      100% { top: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="progress"></div>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="#" class="nav-logo">The V2 Project</a>
+    <a href="/TheV2Project-2.0/radiografia" class="nav-cta">Iniciar Radiografía</a>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <span class="hero-eyebrow">Sistema de Reconstrucción</span>
+    <h1 class="hero-title">V2</h1>
+    <p class="hero-slogan">La evidencia no miente.</p>
+    <div class="hero-scroll" aria-hidden="true">
+      <span class="hero-scroll-label">Scroll</span>
+      <div class="hero-scroll-track"></div>
+    </div>
+  </section>
+
+  <!-- ── SECCIÓN 01 — NARRATIVA ── -->
+  <section id="s01" aria-label="Narrativa">
+    <div class="s01-pin">
+      <p class="s01-phrase" data-index="0">No necesitas motivación.</p>
+      <p class="s01-phrase" data-index="1">No necesitas inspiración.</p>
+      <p class="s01-phrase" data-index="2">No necesitas el playlist correcto.</p>
+      <p class="s01-phrase" data-index="3">No necesitas que esté soleado.</p>
+      <p class="s01-phrase" data-index="4">No necesitas la membresía perfecta.</p>
+      <p class="s01-phrase" data-index="5">No necesitas otro lunes.</p>
+      <p class="s01-phrase pivot" data-index="6">Necesitas cumplir lo que te prometes.</p>
+    </div>
+  </section>
+
+  <!-- ── SECCIÓN 02 — REALIDAD ── -->
+  <section class="section">
+    <div class="s02-inner">
+      <span class="section-tag reveal">02 — Realidad</span>
+      <h2 class="s02-headline reveal">
+        Tus resultados actuales<br>
+        son tu historial<br>
+        de decisiones.
+      </h2>
+      <div class="s02-rule reveal"></div>
+      <p class="s02-statement reveal">La evidencia no miente.</p>
+    </div>
+  </section>
+
+  <!-- ── SECCIÓN 03 — QUÉ ES V2 ── -->
+  <section class="section">
+    <div class="s03-inner">
+      <span class="section-tag reveal">03 — Qué es V2</span>
+      <h2 class="s03-headline reveal">
+        V2 es un sistema<br>
+        para <span class="em">erradicar</span><br>
+        una identidad<br>
+        que ya no funciona.
+      </h2>
+      <p class="s03-coda reveal">
+        O que nunca funcionó.<br><br>
+        No para motivarte.<br>
+        Para reconstruirte.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── SECCIÓN 04 — V1 VS V2 ── -->
+  <section class="section">
+    <div class="s04-inner">
+      <span class="section-tag reveal" style="text-align:center">04 — V1 vs V2</span>
+      <div class="s04-grid" id="s04-grid">
+        <div class="s04-col v1">
+          <div class="s04-col-label">V1</div>
+          <div class="s04-item">Quiere comodidad.</div>
+          <div class="s04-item">Quiere otro lunes.</div>
+          <div class="s04-item">Quiere más tiempo.</div>
+          <div class="s04-item">Quiere negociar.</div>
+          <div class="s04-item">Quiere posponer.</div>
+          <div class="s04-item">Siempre tiene una explicación.</div>
+        </div>
+        <div class="s04-col v2">
+          <div class="s04-col-label">V2</div>
+          <div class="s04-item">Ejecuta.</div>
+          <div class="s04-item">Y se calla.</div>
+        </div>
+      </div>
+      <p class="s04-coda reveal">
+        La diferencia no es intención.<br>
+        La diferencia es <strong>ejecución</strong>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── SECCIÓN 05 — LA EVIDENCIA ── -->
+  <section class="section" id="s05">
+    <div class="s05-inner">
+      <span class="section-tag reveal">05 — La Evidencia</span>
+      <h2 class="s05-headline reveal">La evidencia<br>ya habló.</h2>
+      <div class="s05-signals">
+        <p class="s05-signal">Tu cuerpo habla.</p>
+        <p class="s05-signal">Tus hábitos hablan.</p>
+        <p class="s05-signal">Tus relaciones hablan.</p>
+        <p class="s05-signal">Tu energía habla.</p>
+        <p class="s05-signal">Tu trabajo habla.</p>
+        <p class="s05-signal">Tus resultados hablan.</p>
+      </div>
+      <div class="s05-areas" aria-label="Áreas de V2">
+        <div class="s05-area">Salud Física</div>
+        <div class="s05-area">Salud Mental</div>
+        <div class="s05-area">Disciplina</div>
+        <div class="s05-area">Relaciones</div>
+        <div class="s05-area">Desarrollo Profesional</div>
+        <div class="s05-area">Identidad</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECCIÓN 06 — RADIOGRAFÍA ── -->
+  <section class="section" id="radiografia">
+    <div class="s06-inner">
+      <span class="section-tag reveal">06 — Radiografía V2</span>
+      <p class="s06-pre reveal">
+        No puedes mejorar algo<br>
+        que no has medido.<br><br>
+        Antes de construir.<br>
+        Necesitas saber dónde estás.
+      </p>
+      <h2 class="s06-headline reveal">Radiografía<br>V2</h2>
+      <a href="/TheV2Project-2.0/radiografia" class="btn-primary reveal">Iniciar Radiografía</a>
+    </div>
+  </section>
+
+  <!-- ── SECCIÓN 07 — CIERRE ── -->
+  <section class="section" id="s07">
+    <div class="s07-inner">
+      <span class="section-tag reveal">07 — Decisión</span>
+      <div class="s07-mirror" id="s07-mirror">
+        <p class="s07-mirror-item">Mírate.</p>
+        <p class="s07-mirror-item">Tus hábitos.</p>
+        <p class="s07-mirror-item">Tus relaciones.</p>
+        <p class="s07-mirror-item">Tus resultados.</p>
+        <p class="s07-mirror-item">Tu cuerpo.</p>
+        <p class="s07-mirror-item">Tu energía.</p>
+        <p class="s07-mirror-item">Tu disciplina.</p>
+      </div>
+      <p class="s07-question" id="s07-question">
+        La evidencia ya emitió su veredicto.<br><br>
+        ¿Vas a seguir justificando los resultados?<br>
+        ¿O vas a empezar a construir tu V2?
+      </p>
+      <a href="/TheV2Project-2.0/radiografia" class="btn-primary">Comenzar</a>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <span class="footer-brand">The V2 Project</span>
+    <span class="footer-tagline">La evidencia no miente.</span>
+  </footer>
+
+  <script>
+    // ── Scroll progress bar
+    const progressEl = document.getElementById('progress');
+    function updateProgress() {
+      const scrolled = window.scrollY;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      progressEl.style.width = (total > 0 ? (scrolled / total) * 100 : 0) + '%';
+    }
+
+    // ── Nav frosted glass
+    const navEl = document.getElementById('nav');
+    function updateNav() {
+      navEl.classList.toggle('scrolled', window.scrollY > 60);
+    }
+
+    // ── Section 01 — Sticky scroll narrative
+    const s01 = document.getElementById('s01');
+    const phrases = Array.from(s01.querySelectorAll('.s01-phrase'));
+    const N = phrases.length;
+    s01.style.height = (N * 100) + 'vh';
+
+    let currentIdx = -1;
+
+    function updateNarrative() {
+      const rect = s01.getBoundingClientRect();
+      const scrollable = s01.offsetHeight - window.innerHeight;
+      if (scrollable <= 0) return;
+
+      const scrolled = Math.max(0, Math.min(scrollable, -rect.top));
+      const progress = scrolled / scrollable;
+      const idx = Math.min(N - 1, Math.floor(progress * N));
+
+      if (idx === currentIdx) return;
+
+      phrases.forEach((p, i) => {
+        p.classList.remove('active', 'exit');
+        if (i === idx) p.classList.add('active');
+        else if (i < idx) p.classList.add('exit');
+      });
+
+      currentIdx = idx;
+    }
+
+    // ── Generic reveal on scroll
+    const revealObs = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }),
+      { threshold: 0.15 }
+    );
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    // ── Section 04 — Choreographed V1→V2 animation
+    const s04Grid = document.getElementById('s04-grid');
+    const v1Items = Array.from(s04Grid.querySelectorAll('.v1 .s04-item'));
+    const v2Items = Array.from(s04Grid.querySelectorAll('.v2 .s04-item'));
+    let s04Done = false;
+
+    new IntersectionObserver(entries => {
+      if (!entries[0].isIntersecting || s04Done) return;
+      s04Done = true;
+
+      // V1 items appear
+      v1Items.forEach((el, i) => setTimeout(() => el.classList.add('in'), i * 120));
+
+      // V1 items get struck through
+      const strikeAt = v1Items.length * 120 + 220;
+      v1Items.forEach((el, i) => setTimeout(() => el.classList.add('struck'), strikeAt + i * 75));
+
+      // V2 items appear after V1 is struck
+      const v2At = strikeAt + v1Items.length * 75 + 280;
+      v2Items.forEach((el, i) => setTimeout(() => el.classList.add('in'), v2At + i * 220));
+
+    }, { threshold: 0.2 }).observe(s04Grid);
+
+    // ── Section 05 — Staggered signals + areas
+    const s05El = document.getElementById('s05');
+    const s05Signals = Array.from(s05El.querySelectorAll('.s05-signal'));
+    const s05Areas = Array.from(s05El.querySelectorAll('.s05-area'));
+    let s05Done = false;
+
+    new IntersectionObserver(entries => {
+      if (!entries[0].isIntersecting || s05Done) return;
+      s05Done = true;
+
+      s05Signals.forEach((el, i) => setTimeout(() => el.classList.add('in'), i * 100));
+
+      const areasAt = s05Signals.length * 100 + 180;
+      s05Areas.forEach((el, i) => setTimeout(() => el.classList.add('in'), areasAt + i * 70));
+
+    }, { threshold: 0.1 }).observe(s05El);
+
+    // ── Section 07 — Mirror + question reveal
+    const s07El = document.getElementById('s07');
+    const mirrorItems = Array.from(s07El.querySelectorAll('.s07-mirror-item'));
+    const questionEl = document.getElementById('s07-question');
+    let s07Done = false;
+
+    new IntersectionObserver(entries => {
+      if (!entries[0].isIntersecting || s07Done) return;
+      s07Done = true;
+
+      mirrorItems.forEach((el, i) => setTimeout(() => el.classList.add('in'), i * 90));
+      setTimeout(() => questionEl.classList.add('in'), mirrorItems.length * 90 + 220);
+
+    }, { threshold: 0.15 }).observe(s07El);
+
+    // ── Combined scroll listener
+    window.addEventListener('scroll', () => {
+      updateProgress();
+      updateNav();
+      updateNarrative();
+    }, { passive: true });
+
+    updateProgress();
+    updateNav();
+    updateNarrative();
+  </script>
+</body>
+</html>
