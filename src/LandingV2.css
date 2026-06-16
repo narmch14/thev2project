@@ -10,7 +10,7 @@
   background: var(--lv2-bg);
   color: var(--lv2-text);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
