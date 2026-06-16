@@ -3,7 +3,12 @@ import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+console.log("FULL URL:", SUPABASE_URL);
+console.log("FULL KEY LENGTH:", SUPABASE_ANON_KEY?.length);
+console.log("FIRST 20:", SUPABASE_ANON_KEY?.substring(0,20));
 
 /* ============================================================
    STAGE 01 — RADIOGRAFÍA V2 · The V2 Project
@@ -521,16 +526,24 @@ const valid = email.trim().includes("@") && whats.trim().length >= 10;
       label: { fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.2em", color: "#888", textTransform: "uppercase" },
       h: { fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, letterSpacing: "-0.02em", color: "#111" },
       p: { fontSize: 14.5, lineHeight: 1.75, color: "#222" },
-      sec: { borderTop: "1px solid #DDD", paddingTop: 26, marginTop: 34 },
+      sec: { borderTop: "1px solid #DDD", paddingTop: 26, marginTop: 34, breakInside: "avoid" },
     };
     const fecha = new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" });
+    const handlePrint = () => {
+      try {
+        window.print();
+      } catch (e) {
+        console.error("Error al generar el PDF:", e);
+        window.alert("No se pudo generar el PDF. Intenta de nuevo o usa Ctrl/Cmd+P para imprimir esta página.");
+      }
+    };
     return (
       <div style={{ minHeight: "100vh", background: "#EDEDED", fontFamily: "'Inter', sans-serif", padding: "32px 16px" }}>
         <style>{css}</style>
-        <style>{`@media print { .no-print { display:none !important } .informe-page { box-shadow:none !important; margin:0 !important } body { background:#fff } }`}</style>
+        <style>{`@media print { .no-print { display:none !important } .informe-page { box-shadow:none !important; margin:0 !important } body { background:#fff } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }`}</style>
         <div ref={topRef} />
         <div className="no-print" style={{ maxWidth: 760, margin: "0 auto 20px", display: "flex", gap: 12 }}>
-          <button className="v2-btn" style={{ ...S.btn, padding: "12px 24px", fontSize: 12 }} onClick={() => window.print()}>Imprimir / Guardar PDF</button>
+          <button className="v2-btn" style={{ ...S.btn, padding: "12px 24px", fontSize: 12 }} onClick={handlePrint}>Imprimir / Guardar PDF</button>
           <button style={{ ...S.ghost, color: "#555", borderColor: "#BBB" }} onClick={() => setScreen("results")}>← Volver a resultados</button>
         </div>
 
@@ -549,8 +562,14 @@ const valid = email.trim().includes("@") && whats.trim().length >= 10;
             <div><div style={L.label}>NOMBRE</div><div style={{ ...L.h, fontSize: 18, marginTop: 4 }}>{nombre || "—"}</div></div>
             <div><div style={L.label}>EDAD</div><div style={{ ...L.h, fontSize: 18, marginTop: 4 }}>{edad != null ? `${edad} años` : "—"}</div></div>
             <div><div style={L.label}>NIVEL V2</div><div style={{ ...L.h, fontSize: 18, marginTop: 4 }}>{level.name}</div></div>
-            <div><div style={L.label}>PUNTAJE</div><div style={{ ...L.h, fontSize: 18, marginTop: 4 }}>{Math.round((result.total / 80) * 100)} / 100</div></div>
+            <div><div style={L.label}>PUNTAJE</div><div style={{ ...L.h, fontSize: 18, marginTop: 4 }}>{scores.total} / 80 · {Math.round((scores.total / 80) * 100)}%</div></div>
           </div>
+          {(email || whats) && (
+            <div style={{ marginTop: 14, display: "flex", gap: 40, flexWrap: "wrap" }}>
+              {email && <div><div style={L.label}>EMAIL</div><div style={{ ...L.p, marginTop: 4 }}>{email}</div></div>}
+              {whats && <div><div style={L.label}>WHATSAPP</div><div style={{ ...L.p, marginTop: 4 }}>{whats}</div></div>}
+            </div>
+          )}
 
           {/* Mensaje */}
           <div style={L.sec}>
